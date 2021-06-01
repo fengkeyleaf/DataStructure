@@ -1,0 +1,487 @@
+package myLibraries.util.tree;
+
+/*
+ * RedBlackTree.java
+ *
+ * Version:
+ *     $1.0$
+ *
+ * Revisions:
+ *     $1.0$
+ */
+
+import myLibraries.util.tree.elements.MapTreeNode;
+
+import java.util.Comparator;
+
+import static myLibraries.util.tree.RedBlackTree.Color.*;
+
+/**
+ * Data structure of Red Black Tree
+ * with mapping tree node
+ *
+ * Note that in order to avoid errors, either a Comparator<K> is provided
+ * or the key, K, implements Comparable<K>
+ *
+ * Reference resource: https://algs4.cs.princeton.edu/home/
+ * or Algorithms 4th Edition in Chinese
+ *
+ * @author       Xiaoyu Tongyang, or call me sora for short
+ */
+
+public class RedBlackTree<K, V> extends BinarySearchTree<K, V> {
+    private RedBlackTreeNode root;
+
+    /**
+     * constructs to create an instance of RedBlackTree
+     * */
+
+    public RedBlackTree( Comparator<K> comparator ) {
+        super( comparator );
+    }
+
+    public RedBlackTree() {
+        this( null );
+    }
+
+    /**
+     * node color
+     * */
+
+    enum Color {
+        RED, BLACK
+    }
+
+    /**
+     * Data structure of Red Black Tree Node
+     *
+     * Inner class
+     * */
+
+    private class RedBlackTreeNode extends MapTreeNode<K, V> {
+        Color color;
+
+        /**
+         * constructs to create an instance of Node
+         * */
+
+        public RedBlackTreeNode( int ID, K key,
+                                 V val, Color color ) {
+            this( ID, null, null, null, key, val, color );
+        }
+
+        public RedBlackTreeNode( int ID, RedBlackTreeNode parent,
+                            K key, V val, Color color ) {
+            this( ID, parent, null, null, key, val, color );
+        }
+
+        public RedBlackTreeNode( int ID, RedBlackTreeNode parent,
+                                 RedBlackTreeNode left, RedBlackTreeNode right,
+                            K key, V val, Color color ) {
+            super( ID, parent, left, right, key, val );
+            this.color = color;
+        }
+
+        public RedBlackTreeNode( int ID, RedBlackTreeNode left,
+                                 RedBlackTreeNode right, K key, V val, Color color ) {
+            this( ID, null, left, right, key, val, color );
+        }
+
+        @Override
+        public String toString() {
+            return color + ":{" + key + "->" + val + "}";
+        }
+    }
+
+    /**
+     * check a node has valid structure
+     * */
+
+    private boolean checkInvalidStructure( RedBlackTreeNode root ) {
+        RedBlackTreeNode left = ( RedBlackTreeNode ) root.left;
+        RedBlackTreeNode right = ( RedBlackTreeNode ) root.right;
+
+        boolean ifInvalid = false;
+        // if left is BLACK, right must be non-null
+        if ( left != null && left.color == BLACK )
+            if ( right == null )
+                ifInvalid = true;
+
+        // if right is BLACK, left must be non-null
+        if ( right != null && right.color == BLACK )
+            if ( left == null )
+                ifInvalid = true;
+
+        return ifInvalid;
+    }
+
+    /**
+     * Use inorder to do the job
+     * */
+
+    private void checkValidTreeStructure( RedBlackTreeNode root ) {
+        if ( root == null ) return;
+        assert !checkInvalidStructure( root ) : root.left + " <- " +root + " -> " + root.right;
+
+        checkValidTreeStructure( ( RedBlackTreeNode ) root.left );
+        checkValidTreeStructure( ( RedBlackTreeNode ) root.right );
+    }
+
+    /**
+     * check Valid Tree Structure
+     * */
+
+    public void checkValidTreeStructure() {
+        checkValidTreeStructure( root );
+    }
+
+    /**
+     * inorderPrint
+     * */
+
+    private void inorderPrint( RedBlackTreeNode root ) {
+        if ( root == null ) return;
+        assert !checkInvalidStructure( root );
+
+        inorderPrint( ( RedBlackTreeNode ) root.left );
+        System.out.print( root + " " );
+        inorderPrint( ( RedBlackTreeNode ) root.right );
+    }
+
+    /**
+     * print this BST in inorder
+     * */
+
+    public void inorderPrint() {
+        inorderPrint( root );
+        System.out.println();
+    }
+
+    /**
+     * a node is red?
+     * */
+
+    private boolean isRed( MapTreeNode<K, V> node ) {
+        return node != null &&
+                ( ( RedBlackTreeNode ) node ).color == RED;
+    }
+
+    /**
+     * common part for both rotateLeft and rotateRight
+     * */
+
+    private void rotate( RedBlackTreeNode root, RedBlackTreeNode temp ) {
+        temp.color = root.color;
+        root.color = RED;
+        temp.numberOfChildren = root.numberOfChildren;
+        updateSize( root );
+    }
+
+    /**
+     * rotate Left
+     * */
+
+    private RedBlackTreeNode rotateLeft( RedBlackTreeNode root ) {
+        RedBlackTreeNode temp = ( RedBlackTreeNode ) root.right;
+        root.right = temp.left;
+        temp.left = root;
+        rotate( root, temp );
+        return temp;
+    }
+
+    /**
+     * rotate Right
+     * */
+
+    private RedBlackTreeNode rotateRight( RedBlackTreeNode root ) {
+        RedBlackTreeNode temp = ( RedBlackTreeNode ) root.left;
+        root.left = temp.right;
+        temp.right = root;
+        rotate( root, temp );
+        return temp;
+    }
+
+    /**
+     * flip Colors
+     *
+     * @param reverse   true - set root's color to BLACK,
+     *                  children RED ( up-down combing ),
+     *                  false - set root's color to RED,
+     *                  children BLACK ( bottom-up restoring )
+     * */
+
+    private void flipColors( RedBlackTreeNode root, boolean reverse ) {
+        root.color = reverse ? BLACK : RED;
+        ( ( RedBlackTreeNode ) root.left ).color = reverse ? RED : BLACK;
+        ( ( RedBlackTreeNode ) root.right ).color = reverse ? RED : BLACK;
+    }
+
+    /**
+     * Balance Case One:
+     * root's left child is RED and
+     * the right child is BLACK
+     * */
+
+    private boolean ifBalanceCaseOne( RedBlackTreeNode root ) {
+        return isRed( root.right ) && !isRed( root.left );
+    }
+
+    /**
+     * Balance Case Two:
+     * root's left child is RED
+     * and the left child's left child is RED
+     * */
+
+    private boolean ifBalanceCaseTwo( RedBlackTreeNode root ) {
+        return isRed( root.left ) && isRed( root.left.left );
+    }
+
+    /**
+     * Balance Case Three:
+     * root's left child is BLACK and
+     * the right child is RED
+     * */
+
+    private boolean ifBalanceCaseThree( RedBlackTreeNode root ) {
+        return isRed( root.left ) && isRed( root.right );
+    }
+
+    /**
+     * balance this R-B tree
+     * */
+
+    private RedBlackTreeNode balance( RedBlackTreeNode root ) {
+        if ( ifBalanceCaseOne( root ) ) root = rotateLeft( root );
+        if ( ifBalanceCaseTwo( root ) ) root = rotateRight( root );
+        if ( ifBalanceCaseThree( root ) ) flipColors( root, false );
+
+        return ( RedBlackTreeNode ) updateSize( root );
+    }
+
+    /**
+     * put key -> val into this R-B tree
+     * */
+
+    public void put( K key, V val ) {
+        root = put( root, key, val );
+        root.color = BLACK;
+    }
+
+    // this part of code is very similar to
+    // put( MapTreeNode<K, V> root, K key, V val ).
+    private RedBlackTreeNode put( RedBlackTreeNode root, K key, V val ) {
+        // base case, attach the new node to this position
+        if ( root == null ) return new RedBlackTreeNode( ID++, key, val, RED );
+
+        int res = compareKeys( root, key );
+        // the node should be attached in the left subtree
+        if ( res > 0 ) root.left = put( ( RedBlackTreeNode ) root.left, key, val );
+        // the node should be attached in the right subtree
+        else if ( res < 0 ) root.right = put( ( RedBlackTreeNode ) root.right, key, val );
+        // added before, update value
+        else root.val = val;
+
+        // update size and restore this R-B tree
+        return balance( root );
+    }
+
+    /**
+     * delete the minimum key -> value in this R-B tree
+     * */
+
+    public void deleteMin() {
+        // the following commented out code is from the textbook,
+        // but from my point of view, they're redundant.
+//         if ( !isRed( ( RedBlackTreeNode ) root.left ) &&
+//                 !isRed( ( RedBlackTreeNode ) root.right ) )
+//             ( ( RedBlackTreeNode ) root ).color = RED;
+
+        // the root is null, i.e the tree is empty,
+        // which is missed by the textbook
+        if ( isEmpty() ) return;
+
+        root = deleteMin( root );
+        if ( !isEmpty() ) ( root ).color = BLACK;
+    }
+
+    private RedBlackTreeNode deleteMin( RedBlackTreeNode root ) {
+        // base case, this node is the least one in the tree
+        // and it's also a leaf node in this R-B tree,
+        // so just return null, instead of return root.right,
+        // which is different from deleteMin() for BST.
+        if ( root.left == null ) return null;
+
+        // guarantee that every node
+        // we're traveling along left subtree
+        // is either 3-node or 4-node.
+        // !isRed( root.left.left ) is to
+        // differentiate case 4 and case 7
+        if ( !isRed( root.left ) &&
+                !isRed( root.left.left ) )
+            root = moveRedLeft( root );
+
+        // otherwise, look into the left subtree
+        root.left = deleteMin( ( RedBlackTreeNode ) root.left );
+        return balance( root );
+    }
+
+    private RedBlackTreeNode moveRedLeft( RedBlackTreeNode root ) {
+        flipColors( root, true );
+
+        if ( isRed( root.right.left ) ) {
+            // handle case 6
+            root.right = rotateRight( ( RedBlackTreeNode ) root.right );
+            root = rotateLeft( root );
+        }
+
+        return root;
+    }
+
+    /**
+     * delete the maximum key -> value in this R-B tree
+     * */
+
+    public void deleteMax() {
+        // the following commented out code is from the textbook,
+        // but from my point of view, they're redundant
+//         if ( !isRed( ( RedBlackTreeNode ) root.left ) &&
+//                 !isRed( ( RedBlackTreeNode ) root.right ) )
+//             ( ( RedBlackTreeNode ) root ).color = RED;
+
+        // the root is null, i.e the tree is empty,
+        // which is missed by the textbook
+        if ( isEmpty() ) return;
+
+        root = deleteMax( root );
+        if ( !isEmpty() ) ( root ).color = BLACK;
+    }
+
+    private RedBlackTreeNode deleteMax( RedBlackTreeNode root ) {
+        // handle case 2
+        if ( isRed( root.left ) )
+            root = rotateRight( root );
+
+        // base case, this node is the greatest one in the tree
+        // and it's also a leaf node in this R-B tree,
+        // so just return null, instead of return root.left,
+        // which is different from deleteMax() for BST
+        if ( root.right == null ) return null;
+
+        // guarantee that every node
+        // we're traveling along right subtree
+        // is either 3-node or 4-node.
+        // differentiate case 4 and case 5,
+        // and handle case 5 more efficiently
+        if ( !isRed( root.right ) &&
+                !isRed( root.right.left ) )
+            root = moveRedRight( root );
+
+        // otherwise, look into the right subtree
+        root.right = deleteMax( ( RedBlackTreeNode ) root.right );
+        return balance( root );
+    }
+
+    private RedBlackTreeNode moveRedRight( RedBlackTreeNode root ) {
+        flipColors( root, true );
+
+        // handle case 4 more efficiently,
+        // since at this point, there is an extra red node on the left,
+        // we could move it to the right part of the tree
+        // but different from the code in the textbook,
+        // which is: !isRed( root.left.left )
+        if ( isRed( root.left.left ) )
+            root = rotateRight( root );
+
+        return root;
+    }
+
+    /**
+     * delete the key -> value in this R-B tree
+     * */
+
+    public void delete( K key ) {
+        // the following commented out code is from the textbook,
+        // but from my point of view, they're redundant
+//         if ( !isRed( ( RedBlackTreeNode ) root.left ) &&
+//                 !isRed( ( RedBlackTreeNode ) root.right ) )
+//             ( ( RedBlackTreeNode ) root ).color = RED;
+
+        // the root is null, i.e the tree is empty,
+        // which is missed by the textbook
+        if ( isEmpty() ) return;
+
+        root = delete( root, key );
+        if ( isEmpty() ) ( root ).color = BLACK;
+    }
+
+    // Note that this recursive method is a bit unique from usual ones,
+    // since the base case for this method is not at the beginning of code
+    private RedBlackTreeNode delete( RedBlackTreeNode root, K key ) {
+        int res = compareKeys( root, key );
+
+        // the key may be in the left subtree.
+        if ( res > 0 ) {
+            // this part of code is very similar to
+            // deleteMin( RedBlackTreeNode root ).
+
+            // base 3, not found the key in this R-B tree
+            // and this corner case,
+            // where you delete a minimum key that is not in the R-B tree,
+            // is missed by the textbook
+            if ( root.left == null ) return root;
+
+            if ( !isRed( root.left ) &&
+                    !isRed( root.left.left ) )
+                root = moveRedLeft( root );
+
+            root.left = delete( ( RedBlackTreeNode ) root.left, key );
+        }
+        // the key may be in the right subtree,
+        // or found the key to delete.
+        else {
+            // this part of code is very similar to
+            // deleteMax( RedBlackTreeNode root ).
+            // starts at here ---->
+            if ( isRed( root.left ) )
+                root = rotateRight( root );
+
+            // base case 2 and also case 1, found the key and the node
+            // associated with the key is either a 3-node or 4-node
+            // just delete it
+            if ( res == 0 && root.right == null ) return null;
+
+            // base 3, not found the key in this R-B tree
+            // and this corner case,
+            // where you delete a maximum key that is not in the R-B tree,
+            // is missed by the textbook
+            if ( root.right == null ) return root;
+
+            if ( !isRed( root.right ) &&
+                    !isRed( root.right.left ) )
+                root = moveRedRight( root );
+            // ----> ends here
+
+            // case 2, found the key but
+            // the node associated with the key is a 2-node
+            // replace it with its successor and
+            // delete the successor with deleteMin( root ).
+            if ( res == 0 ) {
+                // replace the node with its successor
+                root.replace( min( root.right ) );
+                // delete the successor
+                root.right = deleteMin( ( RedBlackTreeNode ) root.right );
+
+                // the following commented-out code is from the textbook,
+                // which is a little bit complex, not as simple as possible
+//                root.val = get( root.right, min( root.right ).key );
+//                root.key = min( root.right ).key;
+//                root.right = deleteMin( ( RedBlackTreeNode ) root.right );
+            }
+            // the key may be in the right subtree,
+            else root.right = delete( ( RedBlackTreeNode ) root.right, key );
+        }
+
+        // update size and restore this R-B tree
+        return balance( root );
+    }
+}
