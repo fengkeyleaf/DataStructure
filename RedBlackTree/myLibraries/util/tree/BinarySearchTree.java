@@ -28,7 +28,7 @@ import java.util.Comparator;
  */
 
 public class BinarySearchTree<K, V> extends AbstractTree {
-    private MapTreeNode<K, V> root;
+    protected MapTreeNode<K, V> root;
     // comparator to compare key, K
     protected final Comparator<K> comparator;
 
