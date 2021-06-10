@@ -30,7 +30,7 @@ import static myLibraries.util.tree.RedBlackTree.Color.*;
  */
 
 public class RedBlackTree<K, V> extends BinarySearchTree<K, V> {
-    private RedBlackTreeNode root;
+//    protected RedBlackTreeNode root;
 
     /**
      * constructs to create an instance of RedBlackTree
@@ -48,7 +48,7 @@ public class RedBlackTree<K, V> extends BinarySearchTree<K, V> {
      * node color
      * */
 
-    enum Color {
+    public enum Color {
         RED, BLACK
     }
 
@@ -58,8 +58,8 @@ public class RedBlackTree<K, V> extends BinarySearchTree<K, V> {
      * Inner class
      * */
 
-    private class RedBlackTreeNode extends MapTreeNode<K, V> {
-        Color color;
+    protected class RedBlackTreeNode extends MapTreeNode<K, V> {
+        public Color color;
 
         /**
          * constructs to create an instance of Node
@@ -132,7 +132,7 @@ public class RedBlackTree<K, V> extends BinarySearchTree<K, V> {
      * */
 
     public void checkValidTreeStructure() {
-        checkValidTreeStructure( root );
+        checkValidTreeStructure( ( RedBlackTreeNode ) root );
     }
 
     /**
@@ -153,7 +153,7 @@ public class RedBlackTree<K, V> extends BinarySearchTree<K, V> {
      * */
 
     public void inorderPrint() {
-        inorderPrint( root );
+        inorderPrint( ( RedBlackTreeNode ) root );
         System.out.println();
     }
 
@@ -161,7 +161,7 @@ public class RedBlackTree<K, V> extends BinarySearchTree<K, V> {
      * a node is red?
      * */
 
-    private boolean isRed( MapTreeNode<K, V> node ) {
+    protected boolean isRed( MapTreeNode<K, V> node ) {
         return node != null &&
                 ( ( RedBlackTreeNode ) node ).color == RED;
     }
@@ -170,7 +170,7 @@ public class RedBlackTree<K, V> extends BinarySearchTree<K, V> {
      * common part for both rotateLeft and rotateRight
      * */
 
-    private void rotate( RedBlackTreeNode root, RedBlackTreeNode temp ) {
+    protected void rotate( RedBlackTreeNode root, RedBlackTreeNode temp ) {
         temp.color = root.color;
         root.color = RED;
         temp.numberOfChildren = root.numberOfChildren;
@@ -181,7 +181,7 @@ public class RedBlackTree<K, V> extends BinarySearchTree<K, V> {
      * rotate Left
      * */
 
-    private RedBlackTreeNode rotateLeft( RedBlackTreeNode root ) {
+    protected RedBlackTreeNode rotateLeft( RedBlackTreeNode root ) {
         RedBlackTreeNode temp = ( RedBlackTreeNode ) root.right;
         root.right = temp.left;
         temp.left = root;
@@ -193,7 +193,7 @@ public class RedBlackTree<K, V> extends BinarySearchTree<K, V> {
      * rotate Right
      * */
 
-    private RedBlackTreeNode rotateRight( RedBlackTreeNode root ) {
+    protected RedBlackTreeNode rotateRight( RedBlackTreeNode root ) {
         RedBlackTreeNode temp = ( RedBlackTreeNode ) root.left;
         root.left = temp.right;
         temp.right = root;
@@ -210,7 +210,7 @@ public class RedBlackTree<K, V> extends BinarySearchTree<K, V> {
      *                  children BLACK ( bottom-up restoring )
      * */
 
-    private void flipColors( RedBlackTreeNode root, boolean reverse ) {
+    protected void flipColors( RedBlackTreeNode root, boolean reverse ) {
         root.color = reverse ? BLACK : RED;
         ( ( RedBlackTreeNode ) root.left ).color = reverse ? RED : BLACK;
         ( ( RedBlackTreeNode ) root.right ).color = reverse ? RED : BLACK;
@@ -222,7 +222,7 @@ public class RedBlackTree<K, V> extends BinarySearchTree<K, V> {
      * the right child is BLACK
      * */
 
-    private boolean ifBalanceCaseOne( RedBlackTreeNode root ) {
+    protected boolean ifBalanceCaseOne( RedBlackTreeNode root ) {
         return isRed( root.right ) && !isRed( root.left );
     }
 
@@ -232,7 +232,7 @@ public class RedBlackTree<K, V> extends BinarySearchTree<K, V> {
      * and the left child's left child is RED
      * */
 
-    private boolean ifBalanceCaseTwo( RedBlackTreeNode root ) {
+    protected boolean ifBalanceCaseTwo( RedBlackTreeNode root ) {
         return isRed( root.left ) && isRed( root.left.left );
     }
 
@@ -242,7 +242,7 @@ public class RedBlackTree<K, V> extends BinarySearchTree<K, V> {
      * the right child is RED
      * */
 
-    private boolean ifBalanceCaseThree( RedBlackTreeNode root ) {
+    protected boolean ifBalanceCaseThree( RedBlackTreeNode root ) {
         return isRed( root.left ) && isRed( root.right );
     }
 
@@ -250,7 +250,7 @@ public class RedBlackTree<K, V> extends BinarySearchTree<K, V> {
      * balance this R-B tree
      * */
 
-    private RedBlackTreeNode balance( RedBlackTreeNode root ) {
+    protected RedBlackTreeNode balance( RedBlackTreeNode root ) {
         if ( ifBalanceCaseOne( root ) ) root = rotateLeft( root );
         if ( ifBalanceCaseTwo( root ) ) root = rotateRight( root );
         if ( ifBalanceCaseThree( root ) ) flipColors( root, false );
@@ -263,8 +263,9 @@ public class RedBlackTree<K, V> extends BinarySearchTree<K, V> {
      * */
 
     public void put( K key, V val ) {
-        root = put( root, key, val );
+        RedBlackTreeNode root = put( ( RedBlackTreeNode ) this.root, key, val );
         root.color = BLACK;
+        this.root = root;
     }
 
     // this part of code is very similar to
@@ -300,8 +301,9 @@ public class RedBlackTree<K, V> extends BinarySearchTree<K, V> {
         // which is missed by the textbook
         if ( isEmpty() ) return;
 
-        root = deleteMin( root );
-        if ( !isEmpty() ) ( root ).color = BLACK;
+        RedBlackTreeNode root = deleteMin( ( RedBlackTreeNode ) this.root );
+        if ( !isEmpty() ) root.color = BLACK;
+        this.root = root;
     }
 
     private RedBlackTreeNode deleteMin( RedBlackTreeNode root ) {
@@ -352,8 +354,9 @@ public class RedBlackTree<K, V> extends BinarySearchTree<K, V> {
         // which is missed by the textbook
         if ( isEmpty() ) return;
 
-        root = deleteMax( root );
-        if ( !isEmpty() ) ( root ).color = BLACK;
+        RedBlackTreeNode root = deleteMax( ( RedBlackTreeNode ) this.root );
+        if ( !isEmpty() ) root.color = BLACK;
+        this.root = root;
     }
 
     private RedBlackTreeNode deleteMax( RedBlackTreeNode root ) {
@@ -410,8 +413,9 @@ public class RedBlackTree<K, V> extends BinarySearchTree<K, V> {
         // which is missed by the textbook
         if ( isEmpty() ) return;
 
-        root = delete( root, key );
-        if ( isEmpty() ) ( root ).color = BLACK;
+        RedBlackTreeNode root = delete( ( RedBlackTreeNode ) this.root, key );
+        if ( !isEmpty() ) root.color = BLACK;
+        this.root = root;
     }
 
     // Note that this recursive method is a bit unique from usual ones,
