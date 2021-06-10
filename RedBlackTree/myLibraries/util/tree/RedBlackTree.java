@@ -302,8 +302,8 @@ public class RedBlackTree<K, V> extends BinarySearchTree<K, V> {
         if ( isEmpty() ) return;
 
         RedBlackTreeNode root = deleteMin( ( RedBlackTreeNode ) this.root );
-        if ( !isEmpty() ) root.color = BLACK;
         this.root = root;
+        if ( !isEmpty() ) root.color = BLACK;
     }
 
     private RedBlackTreeNode deleteMin( RedBlackTreeNode root ) {
@@ -355,8 +355,8 @@ public class RedBlackTree<K, V> extends BinarySearchTree<K, V> {
         if ( isEmpty() ) return;
 
         RedBlackTreeNode root = deleteMax( ( RedBlackTreeNode ) this.root );
-        if ( !isEmpty() ) root.color = BLACK;
         this.root = root;
+        if ( !isEmpty() ) root.color = BLACK;
     }
 
     private RedBlackTreeNode deleteMax( RedBlackTreeNode root ) {
@@ -414,8 +414,8 @@ public class RedBlackTree<K, V> extends BinarySearchTree<K, V> {
         if ( isEmpty() ) return;
 
         RedBlackTreeNode root = delete( ( RedBlackTreeNode ) this.root, key );
-        if ( !isEmpty() ) root.color = BLACK;
         this.root = root;
+        if ( !isEmpty() ) root.color = BLACK;
     }
 
     // Note that this recursive method is a bit unique from usual ones,
