@@ -57,10 +57,24 @@ public final class TestBBST {
         BBST2.put( 1, 1 ); // 2
         BBST2.put( 3, 3 ); // 3
 
-        BBST.checkValidTreeStructure();
+        BBST2.checkValidTreeStructure();
         BBST2.delete( 0 );
-        BBST.checkValidTreeStructure();
+        BBST2.checkValidTreeStructure();
         BBST2.delete( 4 );
+        BBST2.checkValidTreeStructure();
         BBST2.inorderPrint();
+        BBST2.deleteMin();
+        BBST2.deleteMin();
+        BBST2.deleteMin();
+        BBST2.inorderPrint();
+
+        RedBlackTree<String, Integer> BBST3 = new RedBlackTree<>();
+        BBST3.put( "H", num++ );
+        BBST3.put( "C", num++ ); // 5
+        BBST3.put( "R", num++ );
+        BBST3.put( "A", num++ ); // 3
+
+        BBST3.delete( "C" );
+        BBST3.inorderPrint();
     }
 }
