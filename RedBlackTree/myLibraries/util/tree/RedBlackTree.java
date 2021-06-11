@@ -421,10 +421,14 @@ public class RedBlackTree<K, V> extends BinarySearchTree<K, V> {
     // Note that this recursive method is a bit unique from usual ones,
     // since the base case for this method is not at the beginning of code
     private RedBlackTreeNode delete( RedBlackTreeNode root, K key ) {
-        int res = compareKeys( root, key );
+        // why not use the commented-out code to compare keys?
+        // because if tree was rotated, the root has changed,
+        // i.e. not the previous one we computed for the variable, res,
+        // so we need to recompute their comparing order.
+//        int res = compareKeys( root, key );
 
         // the key may be in the left subtree.
-        if ( res > 0 ) {
+        if ( compareKeys( root, key ) > 0 ) {
             // this part of code is very similar to
             // deleteMin( RedBlackTreeNode root ).
 
@@ -452,7 +456,7 @@ public class RedBlackTree<K, V> extends BinarySearchTree<K, V> {
             // base case 2 and also case 1, found the key and the node
             // associated with the key is either a 3-node or 4-node
             // just delete it
-            if ( res == 0 && root.right == null ) return null;
+            if ( compareKeys( root, key ) == 0 && root.right == null ) return null;
 
             // base 3, not found the key in this R-B tree
             // and this corner case,
@@ -469,7 +473,7 @@ public class RedBlackTree<K, V> extends BinarySearchTree<K, V> {
             // the node associated with the key is a 2-node
             // replace it with its successor and
             // delete the successor with deleteMin( root ).
-            if ( res == 0 ) {
+            if ( compareKeys( root, key ) == 0 ) {
                 // replace the node with its successor
                 root.replace( min( root.right ) );
                 // delete the successor
