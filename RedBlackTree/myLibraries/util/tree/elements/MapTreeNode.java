@@ -23,7 +23,8 @@ public class MapTreeNode<K, V> extends Node {
     public MapTreeNode<K, V> right;
     public K key;
     public V val;
-    public int numberOfChildren;
+    // including this node itself
+    public int numberOfChildren = 1;
 
     /**
      * constructs to create an instance of Node
