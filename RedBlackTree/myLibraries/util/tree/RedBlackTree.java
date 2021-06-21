@@ -334,6 +334,7 @@ public class RedBlackTree<K, V> extends BinarySearchTree<K, V> {
             // handle case 6
             root.right = rotateRight( ( RedBlackTreeNode ) root.right );
             root = rotateLeft( root );
+            flipColors( root, false );
         }
 
         return root;
@@ -392,9 +393,11 @@ public class RedBlackTree<K, V> extends BinarySearchTree<K, V> {
         // we could move it to the right part of the tree
         // but different from the code in the textbook,
         // which is: !isRed( root.left.left )
-        if ( isRed( root.left.left ) )
+        if ( isRed( root.left.left ) ) {
             root = rotateRight( root );
-
+            flipColors( root, false );
+        }
+        
         return root;
     }
 
