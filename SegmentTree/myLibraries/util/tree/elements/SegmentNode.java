@@ -25,6 +25,10 @@ public class SegmentNode<E> extends Node {
     public E max;
     public E min;
 
+    /**
+     * constructs to create an instance of SegmentNode
+     * */
+    
     public SegmentNode() {
         super( IDStatic++ );
     }
