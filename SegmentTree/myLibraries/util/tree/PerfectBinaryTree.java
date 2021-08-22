@@ -23,6 +23,10 @@ public class PerfectBinaryTree<E> extends AbstractTree<E> {
     // array to represent a Perfect Binary tree
     protected final List<E> tree;
 
+    /**
+     * constructs to create an instance of PerfectBinaryTree
+     * */
+    
     public PerfectBinaryTree() {
         this.tree = new ArrayList<>();
     }
