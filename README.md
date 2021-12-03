@@ -1,3 +1,5 @@
+IMPORTATN: This Repository is out of dated, and is discarded. For more data strcuctures, please see here: [Algorithm Repository](https://github.com/fengkeyleaf/Algorithm)
+
 # 1. Tree
 
 ## 1.1 Binary Search Tree
